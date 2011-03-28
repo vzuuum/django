@@ -296,9 +296,9 @@ def validate_base(cls, model):
         check_isseq(cls, 'filter_vertical', cls.filter_vertical)
         for idx, field in enumerate(cls.filter_vertical):
             f = get_field(cls, model, opts, 'filter_vertical', field)
-            if not isinstance(f, models.ManyToManyField):
+            if not isinstance(f, (models.ManyToManyField, models.ForeignKey)):
                 raise ImproperlyConfigured("'%s.filter_vertical[%d]' must be "
-                    "a ManyToManyField." % (cls.__name__, idx))
+                    "a ManyToManyField or ForeignKey." % (cls.__name__, idx))
 
     # filter_horizontal
     if hasattr(cls, 'filter_horizontal'):

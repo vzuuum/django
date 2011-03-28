@@ -14,6 +14,32 @@ from django.utils.encoding import force_unicode
 from django.conf import settings
 from django.core.urlresolvers import reverse, NoReverseMatch
 
+
+class FilteredSelectSingle(forms.Select):
+    """
+    A Select with a JavaScript filter interface.
+    """
+    class Media:
+        js = (settings.ADMIN_MEDIA_PREFIX + "js/fkfilter.js",)
+
+    def __init__(self, verbose_name, attrs=None, choices=()):
+        self.verbose_name = verbose_name
+        super(FilteredSelectSingle, self).__init__(attrs, choices)
+
+    def render(self, name, value, attrs={}, choices=()):
+        attrs['class'] = 'selectfilter'
+        output = [super(FilteredSelectSingle, self).render(
+            name, value, attrs, choices)]
+        output.append((
+            '<script type="text/javascript">'
+            'django.jQuery(document).ready(function(){'
+            'django.jQuery("#id_%s").fk_filter("%s")'
+            '});'
+            '</script>'
+        ) % (name, self.verbose_name.replace('"', '\\"'),));
+        return mark_safe(u''.join(output))
+
+
 class FilteredSelectMultiple(forms.SelectMultiple):
     """
     A SelectMultiple with a JavaScript filter interface.

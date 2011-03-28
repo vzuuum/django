@@ -159,6 +159,8 @@ class BaseModelAdmin(object):
                 'class': get_ul_class(self.radio_fields[db_field.name]),
             })
             kwargs['empty_label'] = db_field.blank and _('None') or None
+        elif db_field.name in self.filter_vertical:
+            kwargs['widget'] = widgets.FilteredSelectSingle(db_field.verbose_name)
 
         return db_field.formfield(**kwargs)
 
@@ -1302,6 +1304,8 @@ class InlineModelAdmin(BaseModelAdmin):
             js.append('js/prepopulate.min.js')
         if self.filter_vertical or self.filter_horizontal:
             js.extend(['js/SelectBox.js' , 'js/SelectFilter2.js'])
+        if self.fk_filter:
+            js.append('js/fkfilter.js')
         return forms.Media(js=['%s%s' % (settings.ADMIN_MEDIA_PREFIX, url) for url in js])
     media = property(_media)
 

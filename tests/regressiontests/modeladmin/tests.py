@@ -6,7 +6,8 @@ from django.contrib.admin.options import ModelAdmin, TabularInline, \
     HORIZONTAL, VERTICAL
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.validation import validate
-from django.contrib.admin.widgets import AdminDateWidget, AdminRadioSelect
+from django.contrib.admin.widgets import AdminDateWidget, AdminRadioSelect, \
+    FilteredSelectSingle
 from django.core.exceptions import ImproperlyConfigured
 from django.forms.models import BaseModelFormSet
 from django.forms.widgets import Select
@@ -300,6 +301,38 @@ class ModelAdminTests(TestCase):
         self.assertEqual(
             list(ma.get_formsets(request))[0]().forms[0].fields.keys(),
             ['extra', 'transport', 'id', 'DELETE', 'main_band'])
+
+    def test_filter_vertical_foreignkey(self):
+        class ConcertModelAdmin(ModelAdmin):
+            filter_vertical = ('main_band',)
+
+        cma = ConcertModelAdmin(Concert, self.site)
+        cmafa = cma.get_form(request)
+
+        self.assertEqual(type(cmafa.base_fields['main_band'].widget.widget),
+            FilteredSelectSingle)
+        self.assertEqual(type(cmafa.base_fields['opening_band'].widget.widget),
+            Select)
+
+        self.assertEqual(
+            list(cmafa.base_fields['main_band'].widget.choices),
+            [(u'', u'---------'), (self.band.id, u'The Doors')])
+
+        self.assertEqual(
+            type(cmafa.base_fields['opening_band'].widget.widget), Select)
+        self.assertEqual(
+            list(cmafa.base_fields['opening_band'].widget.choices),
+            [(u'', u'---------'), (self.band.id, u'The Doors')])
+
+        self.assertEqual(type(cmafa.base_fields['day'].widget), Select)
+        self.assertEqual(list(cmafa.base_fields['day'].widget.choices),
+            [('', '---------'), (1, 'Fri'), (2, 'Sat')])
+
+        self.assertEqual(type(cmafa.base_fields['transport'].widget),
+            Select)
+        self.assertEqual(
+            list(cmafa.base_fields['transport'].widget.choices),
+            [('', '---------'), (1, 'Plane'), (2, 'Train'), (3, 'Bus')])
 
 
 class ValidationTests(unittest.TestCase):

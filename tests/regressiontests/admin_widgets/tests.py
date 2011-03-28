@@ -8,7 +8,7 @@ from django.contrib import admin
 from django.contrib.admin import widgets
 from django.contrib.admin.widgets import (FilteredSelectMultiple,
     AdminSplitDateTime, AdminFileWidget, ForeignKeyRawIdWidget, AdminRadioSelect,
-    RelatedFieldWidgetWrapper, ManyToManyRawIdWidget)
+    RelatedFieldWidgetWrapper, ManyToManyRawIdWidget, FilteredSelectSingle)
 from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models import DateField
@@ -179,6 +179,15 @@ class AdminForeignKeyRawIdWidget(DjangoTestCase):
 
             self.assertContains(response,
                 'Select a valid choice. That choice is not one of the available choices.')
+
+
+class FilteredSelectSingleWidgetTest(TestCase):
+    def test_render(self):
+        w = FilteredSelectSingle('test')
+        self.assertEqual(
+            conditional_escape(w.render('test', 'test')),
+            '<select name="test" class="selectfilter">\n</select><script type="text/javascript">django.jQuery(document).ready(function(){django.jQuery("#id_test").fk_filter("test")});</script>'
+        )
 
 
 class FilteredSelectMultipleWidgetTest(TestCase):

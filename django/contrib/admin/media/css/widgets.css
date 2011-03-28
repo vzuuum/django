@@ -5,6 +5,10 @@
     float: left;
 }
 
+.selector-single{
+	width: 282px !important;
+}
+
 .selector select {
     width: 270px;
     height: 17.2em;
