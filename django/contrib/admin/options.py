@@ -1303,9 +1303,7 @@ class InlineModelAdmin(BaseModelAdmin):
             js.append('js/urlify.js')
             js.append('js/prepopulate.min.js')
         if self.filter_vertical or self.filter_horizontal:
-            js.extend(['js/SelectBox.js' , 'js/SelectFilter2.js'])
-        if self.fk_filter:
-            js.append('js/fkfilter.js')
+            js.extend(['js/SelectBox.js' , 'js/SelectFilter2.js', 'js/fkfilter.js'])
         return forms.Media(js=['%s%s' % (settings.ADMIN_MEDIA_PREFIX, url) for url in js])
     media = property(_media)
 
