@@ -276,7 +276,10 @@ subclass::
 
     Same as :attr:`~ModelAdmin.filter_horizontal`, but uses a vertical display
     of the filter interface with the box of unselected options appearing above
-    the box of selected options.
+    the box of selected options.  You can also add a
+    :class:`~django.db.models.ForeignKey` to this list and a text box will
+    allow you to narrow your search for a particular object through a
+    potentially large list of options.
 
 .. attribute:: ModelAdmin.form
 
