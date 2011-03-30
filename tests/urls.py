@@ -30,4 +30,9 @@ urlpatterns = patterns('',
     # admin scripts tests
     (r'^admin_scripts/', include('regressiontests.admin_scripts.urls')),
 
+    # test util views
+    (r'test_utils/', include('regressiontests.test_utils.urls')),
+
+    # qunit tests
+    ('^qunit/', include('django.contrib.qunit.urls')),
 )

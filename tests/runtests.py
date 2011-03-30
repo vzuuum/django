@@ -39,6 +39,7 @@ ALWAYS_INSTALLED_APPS = [
     'regressiontests.staticfiles_tests',
     'regressiontests.staticfiles_tests.apps.test',
     'regressiontests.staticfiles_tests.apps.no_label',
+    'django.contrib.qunit',
 ]
 
 def geodjango(settings):
