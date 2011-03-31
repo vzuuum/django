@@ -1,0 +1,77 @@
+{% extends "qunit/base.html" %}
+{% block title %}Django's Javascript Test Suite{% endblock %}
+{% block extra_styles %}
+<style type="text/css">
+  body { margin: 0px; }
+  #qunit-header {
+    padding: 0.5em 0 0.5em 1em;
+
+    color: #8699a4;
+    background-color: #092E20;
+    height: 1.5em;
+    font-size: 1.5em;
+    line-height: 1.5em;
+    font-weight: normal;
+    vertical-align: center;
+    border-radius: 0 0 0 0;
+    -moz-border-radius: 0 0 0 0;
+    -webkit-border-top-right-radius: 0;
+    -webkit-border-top-left-radius: 0;
+  }
+  #qunit-header img { float: left; margin-right: 10px;}
+  #qunit-header span { line-height: 1.8em;}
+
+  #qunit-banner { display: none; line-height: 22px; }
+
+  #navigation { height: 30px;  background: url("/static/nav_bg.gif") repeat-x; vertical-align: center; padding-left: 10px; }
+  #navigation a {
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    color: #FFC757;
+    background-color: #285838;
+    font: normal 14px "Trebuchet MS", sans-serif;
+    padding: 4px 8px 4px 8px;
+    text-decoration: none;
+    line-height: 30px;
+  }
+  #navigation a:hover {
+    color: #285838;
+    background-color: #FFC757;
+  }
+  #qunit-userAgent { background-color: #487858; }
+  #qunit-tests .pass {
+    background-color: #AEF254;
+    color: #516645;
+    font-weight: bold;
+  }
+
+  #qunit-tests ol {
+    margin-top: 0.5em;
+    padding: 0.5em;
+
+    background-color: #fff;
+
+    border-radius: 10px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+
+    box-shadow: inset 0px 2px 13px #999;
+    -moz-box-shadow: inset 0px 2px 13px #999;
+    -webkit-box-shadow: inset 0px 2px 13px #999;
+  }
+
+  #qunit-testresult {
+    padding: 0.5em 0.5em 0.5em 2.5em;
+
+    color: #fff;
+    background-color: #487858;
+
+    border-radius: 0 0 10px 10px;
+    -moz-border-radius: 0 0 10px 10px;
+    -webkit-border-bottom-right-radius: 10px;
+    -webkit-border-bottom-left-radius: 10px;
+  }
+</style>
+{% endblock %}
+{% block header %}<img src="/static/hdr_logo.gif" /><span>{{ block.super }}</span>{% endblock %}
