@@ -15,9 +15,42 @@ static_path = os.path.join(thisdir, 'static')
 templates_path = os.path.join(thisdir, 'templates')
 
 
-class JavascriptTestRunner(generic.TemplateView):
+class JavascriptTestOverview(generic.TemplateView):
     manifest = 'suite.json'
     template_name = 'javascript/overview.html'
+
+    def __init__(self, *args, **kwargs):
+        super(JavascriptTestOverview, self).__init__(*args, **kwargs)
+        self.suites = datastructures.SortedDict()
+        for app_name in settings.INSTALLED_APPS:
+            mod = import_module(app_name)
+            mod_path = os.path.dirname(mod.__file__)
+            label = app_name.split('.')[-1]
+            tests_path = os.path.join(mod_path, 'tests', 'javascript')
+            if os.path.isdir(tests_path):
+                self.suites[label] = {
+                    "local_urls": [],
+                    "remote_urls": [],
+                    "name": app_name,
+                    "tests_path": tests_path,
+                }
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(*args, **kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(JavascriptTestOverview, self).get_context_data(**kwargs)
+        context.update({
+            'suites': self.suites,
+            'linkbase': reverse('javascript-test-overview'),
+        })
+        return context
+
+
+class JavascriptTestRunner(generic.TemplateView):
+    manifest = 'suite.json'
+    template_name = 'javascript/runner.html'
 
     def __init__(self, *args, **kwargs):
         super(JavascriptTestRunner, self).__init__(*args, **kwargs)
