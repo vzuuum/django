@@ -15,6 +15,46 @@ static_path = os.path.join(thisdir, 'static')
 templates_path = os.path.join(thisdir, 'templates')
 
 
+
+class Suite(object):
+    """
+    A ``Suite`` represents a self contained javascript testing environment.
+    There are external libraries that sometimes need to be pulled in before we
+    include the code that needs to be tested.
+
+    .. attribute:: name
+
+        A name for the given test suite
+
+    .. attribute:: tests_path
+
+        The path to the suite.
+
+    .. attribute:: remote_urls
+
+        URLs to external libraries, e.g. jQuery
+
+    .. attribute:: local_urls
+
+        URLs to the code being tested. URLs are relative the to the STATIC_URL
+        setting.
+
+    """
+    name = ''
+    tests_path = ''
+    remote_urls = []
+    local_urls = []
+    subsuites = []
+
+    def __init__(self, name, tests_path, remote_urls=None, local_urls=None):
+        self.name = name
+        self.tests_path = tests_path
+        if local_urls is not None:
+            self.local_urls = local_urls
+        if remote_urls is not None:
+            self.remote_urls = remote_urls
+
+
 class JavascriptTestOverview(generic.TemplateView):
     manifest = 'suite.json'
     template_name = 'javascript/overview.html'
@@ -51,22 +91,6 @@ class JavascriptTestOverview(generic.TemplateView):
 class JavascriptTestRunner(generic.TemplateView):
     manifest = 'suite.json'
     template_name = 'javascript/runner.html'
-
-    def __init__(self, *args, **kwargs):
-        super(JavascriptTestRunner, self).__init__(*args, **kwargs)
-        self.suites = datastructures.SortedDict()
-        for app_name in settings.INSTALLED_APPS:
-            mod = import_module(app_name)
-            mod_path = os.path.dirname(mod.__file__)
-            label = app_name.split('.')[-1]
-            tests_path = os.path.join(mod_path, 'tests', 'javascript')
-            if os.path.isdir(tests_path):
-                self.suites[label] = {
-                    "local_urls": [],
-                    "remote_urls": [],
-                    "name": app_name,
-                    "tests_path": tests_path,
-                }
 
     def get(self, request, label=None, path=None, *args, **kwargs):
         """
