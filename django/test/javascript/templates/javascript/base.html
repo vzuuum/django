@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QUnit Test Suite</title>
+  <link rel="stylesheet" href="{{ STATIC_URL }}qunit/qunit.css" type="text/css" media="screen">
+  <script type="text/javascript" src="{{ STATIC_URL }}qunit/qunit.js"></script>
+  {% block extra_styles %}
+  <style type="text/css">
+    body { margin: 0px; }
+    .hidden { display: none; }
+    a { text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .app { display: inline-block; margin: 2px 2px 5px 2px; padding: 16px 8px; background: #fff; border: 1px solid #ddd; -webkit-border-radius: 6px; -moz-border-radius: 6px; -webkit-box-shadow: 1px 1px 3px #ddd; vertical-align: top; }
+    .app h3 { margin: 0; padding: 3px 0; font-size: 14px; line-height: 20px; color: #333; text-align: center; }
+    .app h3 a { margin: 0; padding: 3px 0; font-size: 14px; line-height: 20px; color: #333; text-align: center; }
+    .apps { padding: 10px; }
+    .apps p { margin: 0; font-size: 16px; color: #333; }
+    .apps p a { display: block; margin: 0 5px; padding: 8px; border: 1px solid #ddd; border-bottom: none; background: #eee; color: #333; }
+    .apps p a small { display: block; margin-top: 3px; font-size: 12px; color: #999; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+    .apps p a strong { display: block; margin-bottom: 3px; font-size: 15px; color: #999; }
+    .apps p a em { font-weight: bold; font-style: normal; }
+
+    .apps p a { -webkit-border-top-left-radius: 4px; -webkit-border-top-right-radius: 4px; -moz-border-radius-topleft: 4px; -moz-border-radius-topright: 4px; }
+    .apps p a { border-bottom: 1px solid #c8de9d; -webkit-border-bottom-left-radius: 4px; -webkit-border-bottom-right-radius: 4px; -moz-border-radius-bottomleft: 4px; -moz-border-radius-bottomright: 4px; }
+
+    .apps p a:hover { background: #175e99 !important; border-color: #175e99 !important; color: #fff !important; }
+    .apps p a:hover small,
+    .apps p a:hover strong { color: #fff !important; }
+
+    .apps p a.passed { background: #eeffcc; border-color: #c8de9d; }
+    .apps p a.passed small { color: #616b4c; }
+    .apps p a.passed strong { color: #98a978; }
+
+    .apps p a.succeeded { background: #cc4949; border-color: #ad3e3e; }
+    .apps p a.succeeded small,
+    .apps p a.succeeded strong { color: #fff; }
+  </style>
+  {% endblock %}
+
+  {% block extrahead %}{% endblock extrahead %}
+</head>
+
+<body>
+  <h1 id="qunit-header">{% block header %}QUnit Test Suite {% block title %}{% endblock title %}{% endblock %}</h1>
+  <h2 id="qunit-banner">{% block banner %}{% endblock banner %}</h2>
+  <div id="qunit-testrunner-toolbar">{% block toolbar %}{% endblock toolbar %}</div>
+  {% block content %}
+    {% if suites %}
+    <div class="apps">
+      {% for label, options in suites.items %}
+      <div class="app">
+        <h3><a href="{{ label }}/">{{ options.name }}</a></h3>
+        <p>
+          <a class="passed" title="">
+            <strong>PASSED</strong>
+            <small>last ran: N/A </small>
+            <small>Duration (ms) N/A</small>
+          </a>
+        </p>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endblock content %}
+</body>
+</html>

@@ -17,7 +17,7 @@ templates_path = os.path.join(thisdir, 'templates')
 
 class JavascriptTestRunner(generic.TemplateView):
     manifest = 'suite.json'
-    template_name = 'javascript/runner.html'
+    template_name = 'javascript/overview.html'
 
     def __init__(self, *args, **kwargs):
         super(JavascriptTestRunner, self).__init__(*args, **kwargs)
@@ -37,7 +37,7 @@ class JavascriptTestRunner(generic.TemplateView):
 
     def get(self, request, label=None, path=None, *args, **kwargs):
         """
-        
+
         """
         if label is not None:
             suite = self.suites.get(label)
