@@ -1,11 +1,6 @@
-from optparse import make_option
-
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIHandler
 from django.core.management.commands.runserver import BaseRunserverCommand
-from django.http import Http404
-from django.views import debug
-
 from django.test.javascript.views import templates_path
 
 

@@ -32,19 +32,25 @@ class Suite(object):
 
     .. attribute:: remote_urls
 
-        URLs to external libraries, e.g. jQuery
+        URLs to external libraries, e.g. jQuery, Mootools, etc.
 
     .. attribute:: local_urls
 
         URLs to the code being tested. URLs are relative the to the STATIC_URL
         setting.
 
+    .. attribute:: tests
+
+        Explicit list of tests to be included under this suite.  Overrides the
+        default behavior of including all .js files within the suite's
+        directory.  Useful for explicitly listing the order of tests, omitting
+        certains tests, or including tests from other nested suites.
+
     """
     name = ''
     tests_path = ''
     remote_urls = []
     local_urls = []
-    subsuites = []
 
     def __init__(self, name, tests_path, remote_urls=None, local_urls=None):
         self.name = name
@@ -55,25 +61,29 @@ class Suite(object):
             self.remote_urls = remote_urls
 
 
+def get_suites():
+    suites = datastructures.SortedDict()
+    for app_name in settings.INSTALLED_APPS:
+        mod = import_module(app_name)
+        mod_path = os.path.dirname(mod.__file__)
+        label = app_name.split('.')[-1]
+        tests_path = os.path.join(mod_path, 'tests', 'javascript')
+        if os.path.isdir(tests_path):
+            suites[label] = {
+                "local_urls": [],
+                "remote_urls": [],
+                "name": app_name,
+                "test": ""
+            }
+    return suites
+
 class JavascriptTestOverview(generic.TemplateView):
     manifest = 'suite.json'
     template_name = 'javascript/overview.html'
 
     def __init__(self, *args, **kwargs):
         super(JavascriptTestOverview, self).__init__(*args, **kwargs)
-        self.suites = datastructures.SortedDict()
-        for app_name in settings.INSTALLED_APPS:
-            mod = import_module(app_name)
-            mod_path = os.path.dirname(mod.__file__)
-            label = app_name.split('.')[-1]
-            tests_path = os.path.join(mod_path, 'tests', 'javascript')
-            if os.path.isdir(tests_path):
-                self.suites[label] = {
-                    "local_urls": [],
-                    "remote_urls": [],
-                    "name": app_name,
-                    "tests_path": tests_path,
-                }
+        self.suites = get_suites()
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(*args, **kwargs)
