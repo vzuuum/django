@@ -55,7 +55,6 @@ class Suite(object):
         self.path = ''
         self.app_label = ''
 
-        print defaults
         self.__dict__.update(defaults)
 
     def _collect(self, attribute):
@@ -185,6 +184,8 @@ class SuiteCache(object):
         # least sort them.
         default['tests'] = sorted([os.path.join(path, test) for test in tests if test.endswith('.js')])
         default['name'] = os.path.split(os.path.normpath(path))[-1]
+        if default['name'] == '.':
+            default['name'] = app_label
         if storage.exists(self.manifest):
             with storage.open(self.manifest) as json:
                 suite = simplejson.loads(json.read())
