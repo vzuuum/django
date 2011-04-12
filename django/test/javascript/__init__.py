@@ -93,7 +93,7 @@ Overview
 
 The overview page is a display of all the apps found within ``INSTALLED_APPS``
 that have javascript tests.  For each app it displays whether it has passed,
-failed, or needs to be run.  It also displays when it last run and how long it
+failed, or needs to be run.  It also displays when it last ran and how long it
 took (if applicable).
 
 On the overview page, tests can be run all at once or one by one.  Whenever the

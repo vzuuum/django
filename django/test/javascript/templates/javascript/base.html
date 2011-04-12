@@ -4,6 +4,7 @@
   <title>QUnit Test Suite</title>
   <link rel="stylesheet" href="/test/qunit/qunit.css" type="text/css" media="screen">
   <script type="text/javascript" src="/test/qunit/qunit.js"></script>
+  <script type="text/javascript" src="/test/store+json2.min.js"></script>
   {% block extra_styles %}
   <style type="text/css">
     body { margin: 0px; }
@@ -14,6 +15,9 @@
     .app { display: inline-block; margin: 2px 2px 5px 2px; padding: 16px 8px; background: #fff; border: 1px solid #ddd; -webkit-border-radius: 6px; -moz-border-radius: 6px; -webkit-box-shadow: 1px 1px 3px #ddd; vertical-align: top; }
     .app h3 { margin: 0; padding: 3px 0; font-size: 14px; line-height: 20px; color: #333; text-align: center; }
     .app h3 a { margin: 0; padding: 3px 0; font-size: 14px; line-height: 20px; color: #333; text-align: center; }
+    .app p:last-child { text-align: center; }
+    .app p button { margin-top: 5px; color: #616b4c; font-size: 10px; background: #ffff99; border-color: #cccc66; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px;}
+
     .apps { padding: 10px; }
     .apps p { margin: 0; font-size: 16px; color: #333; }
     .apps p a { display: block; margin: 0 5px; padding: 8px; border: 1px solid #ddd; border-bottom: none; background: #eee; color: #333; }
@@ -24,7 +28,7 @@
     .apps p a { -webkit-border-top-left-radius: 4px; -webkit-border-top-right-radius: 4px; -moz-border-radius-topleft: 4px; -moz-border-radius-topright: 4px; }
     .apps p a { border-bottom: 1px solid #c8de9d; -webkit-border-bottom-left-radius: 4px; -webkit-border-bottom-right-radius: 4px; -moz-border-radius-bottomleft: 4px; -moz-border-radius-bottomright: 4px; }
 
-    .apps p a:hover { background: #175e99 !important; border-color: #175e99 !important; color: #fff !important; }
+    .apps p a:hover { background: #175e99 !important; border-color: #175e99 !important; color: #fff !important; text-decoration: none; }
     .apps p a:hover small,
     .apps p a:hover strong { color: #fff !important; }
 
@@ -32,13 +36,122 @@
     .apps p a.passed small { color: #616b4c; }
     .apps p a.passed strong { color: #98a978; }
 
-    .apps p a.succeeded { background: #cc4949; border-color: #ad3e3e; }
-    .apps p a.succeeded small,
-    .apps p a.succeeded strong { color: #fff; }
+    .apps p a.failed { background: #cc4949; border-color: #ad3e3e; }
+    .apps p a.failed small,
+    .apps p a.failed strong { color: #fff; }
+
   </style>
   {% endblock %}
 
   {% block extrahead %}{% endblock extrahead %}
+  <!-- TODO: include django's bundled jQuery -->
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript">
+   window.__results = {};
+   var keyz = function(obj) {
+      keys = [];
+      var key;
+      for (key in obj) {
+          if (obj.hasOwnProperty(key)) {
+              keys.push(key);
+          }
+      }
+      return keys;
+    }
+
+    var hashes = {
+      {% for label, options in app_suites.apps.items %}
+        '{{ label }}': '{{ options.suite.get_hash }}'{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    }
+    var test_paths = {
+      {% for label, options in app_suites.apps.items %}
+        '{{ label }}': [
+          {% for suite_path in options.suite.get_suite_paths %}
+           '{{ label }}/{{ suite_path }}'{% if not forloop.last %},{% endif %}
+          {% endfor %}
+          ]{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    }
+
+    var updateStatus = function(name) {
+      var path, result, app;
+      if (keyz(window.__results).length === keyz(test_paths[name]).length) {
+        var failed, passed, total, runtime
+        failed = passed = total = runtime = 0;
+        for(path in window.__results) {
+          result = window.__results[path];
+          passed += result.passed;
+          failed += result.failed;
+          total += result.total;
+          runtime += result.runtime;
+        }
+        app = $("#"+name);
+        app.find("a").removeClass();
+        var date = new Date();
+        if (failed > 0) {
+          app.find("a").addClass("failed");
+          app.find("strong").html("FAILED");
+        } else {
+          app.find("a").addClass("passed");
+          app.find("strong").html("PASSED");
+        }
+        app.find("small:nth-child(2)").html("last ran: " + date.toDateString());
+        app.find("small:nth-child(3)").html("Duration (ms) " + runtime);
+        app.find("small:nth-child(4)").html("passed: " + passed);
+        app.find("small:nth-child(5)").html("failed: " + failed);
+        app.find("small:nth-child(6)").html("total: " + total);
+        store.set(hashes[app[0].id], {
+          'passed': passed,
+          'failed': failed,
+          'total': total,
+          'runtime': runtime,
+          'last_run': date.toDateString()
+        });
+      }
+    }
+
+    $(document).ready(function() {
+      apps = $(".app");
+      var last_result;
+      for (var i = 0; i < apps.length; i++) {
+        last_result = store.get(hashes[apps[i].id]);
+        $(apps[i]).find("p > a").removeClass();
+        if (typeof last_result === "undefined") continue;
+        if (last_result.failed === 0) {
+          $(apps[i]).find("a").addClass("passed");
+          $(apps[i]).find("strong").html("PASSED");
+        } else {
+          $(apps[i]).find("a").addClass("failed");
+          $(apps[i]).find("strong").html("FAILED");
+        }
+        $(apps[i]).find("small:nth-child(2)").html("last ran: " + last_result.last_run);
+        $(apps[i]).find("small:nth-child(3)").html("Duration (ms) " + last_result.runtime);
+        $(apps[i]).find("small:nth-child(4)").html("passed: " + last_result.passed);
+        $(apps[i]).find("small:nth-child(5)").html("failed: " + last_result.failed);
+        $(apps[i]).find("small:nth-child(6)").html("total: " + last_result.total);
+      }
+      $('.app p button').click(function() {
+        var i;
+        var path;
+        var result;
+        var id = $(this).parent().parent()[0].id;
+        var app = $(this).parent();
+        var count = 0;
+        var iframes = [];
+        // Reset from previous runs
+        window.__results = {};
+        $('iframe').remove();
+
+        for (i = 0; i < test_paths[id].length; i++) {
+          path = test_paths[id][i];
+          iframes[i] = $('<iframe name="' + id + '" src="/' + path + '" class="hidden"></iframe>');
+          $("body").append(iframes[i]);
+        }
+
+      });
+    });
+  </script>
 </head>
 
 <body>
@@ -46,17 +159,23 @@
   <h2 id="qunit-banner">{% block banner %}{% endblock banner %}</h2>
   <div id="qunit-testrunner-toolbar">{% block toolbar %}{% endblock toolbar %}</div>
   {% block content %}
-    {% if suites %}
+    {% if app_suites %}
     <div class="apps">
-      {% for label, options in suites.items %}
-      <div class="app">
+      {% for label, options in app_suites.apps.items %}
+      <div class="app" id="{{ label }}">
         <h3><a href="{{ label }}/">{{ options.name }}</a></h3>
         <p>
-          <a class="passed" title="">
-            <strong>PASSED</strong>
+          <a title="">
+            <strong>N/A</strong>
             <small>last ran: N/A </small>
-            <small>Duration (ms) N/A</small>
+            <small>Duration (ms): N/A</small>
+            <small>passed: N/A</small>
+            <small>failed: N/A</small>
+            <small>total: N/A</small>
           </a>
+        </p>
+        <p>
+          <button>Run Tests</button>
         </p>
       </div>
       {% endfor %}
