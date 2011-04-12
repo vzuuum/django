@@ -3,10 +3,9 @@
 
 {% block extrahead %}
   <script type="text/javascript">
-    QUnit.done = function(opts) {
+    QUnit.done = function(results) {
       if (window.top !== window) {
-        window.top.__results['{{ suite.label }}/{{ suite.path }}'] = opts;
-        window.top.updateStatus(window.name);
+        window.top.updateStatus(window.name, '{{ suite.label }}/{{ suite.path }}', results);
       }
     }
   </script>

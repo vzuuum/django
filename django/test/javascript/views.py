@@ -1,16 +1,8 @@
 from __future__ import with_statement
 
-import hashlib
 import os
-import urllib2
-from time import sleep
-from django.conf import settings
-from django.core.files.storage import FileSystemStorage
 from django.http import Http404
-from django.utils import simplejson, datastructures
-from django.utils.importlib import import_module
 from django.views import generic, static
-from django.core.urlresolvers import reverse
 from django.test.javascript.suite import app_suites
 
 thisdir = os.path.dirname(__file__)

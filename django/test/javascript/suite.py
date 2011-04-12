@@ -89,6 +89,7 @@ class Suite(object):
         local_urls = self.get_local_urls()
         tests = self.get_tests()
         cache = {}
+
         # Retrieve remote urls
         for url in remote_urls:
             try:

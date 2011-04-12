@@ -47,9 +47,9 @@
   <!-- TODO: include django's bundled jQuery -->
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
   <script type="text/javascript">
-   window.__results = {};
-   var keyz = function(obj) {
-      keys = [];
+
+   function get_keys(obj) {
+      var keys = [];
       var key;
       for (key in obj) {
           if (obj.hasOwnProperty(key)) {
@@ -59,96 +59,97 @@
       return keys;
     }
 
-    var hashes = {
-      {% for label, options in app_suites.apps.items %}
-        '{{ label }}': '{{ options.suite.get_hash }}'{% if not forloop.last %},{% endif %}
+    var suite_hashes = {
+      {% for app, opts in app_suites.apps.items %}
+        '{{ app }}': '{{ opts.suite.get_hash }}'{% if not forloop.last %},{% endif %}
       {% endfor %}
     }
+
+    var results;
+    function initializeResults() {
+      results = {
+        {% for app in app_suites.apps.keys %}
+          '{{ app }}': {}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      }
+    }
+
     var test_paths = {
-      {% for label, options in app_suites.apps.items %}
-        '{{ label }}': [
-          {% for suite_path in options.suite.get_suite_paths %}
-           '{{ label }}/{{ suite_path }}'{% if not forloop.last %},{% endif %}
+      {% for app, opts in app_suites.apps.items %}
+        '{{ app }}': [
+          {% for suite_path in opts.suite.get_suite_paths %}
+           '{{ app }}/{{ suite_path }}'{% if not forloop.last %},{% endif %}
           {% endfor %}
           ]{% if not forloop.last %},{% endif %}
       {% endfor %}
     }
 
-    var updateStatus = function(name) {
-      var path, result, app;
-      if (keyz(window.__results).length === keyz(test_paths[name]).length) {
-        var failed, passed, total, runtime
-        failed = passed = total = runtime = 0;
-        for(path in window.__results) {
-          result = window.__results[path];
+    function updateApp(app, result) {
+      if (typeof result === "undefined") {
+        return
+      }
+      app.find("a").removeClass();
+      if (result.failed === 0) {
+        app.find("a").addClass("passed");
+        app.find("strong").html("PASSED");
+      } else {
+        app.find("a").addClass("failed");
+        app.find("strong").html("FAILED");
+      }
+      app.find("small:nth-child(2)").html("last ran: " + result.last_run);
+      app.find("small:nth-child(3)").html("Duration (ms) " + result.runtime);
+      app.find("small:nth-child(4)").html("passed: " + result.passed);
+      app.find("small:nth-child(5)").html("failed: " + result.failed);
+      app.find("small:nth-child(6)").html("total: " + result.total);
+    }
+
+    var updateStatus = function(app, suite_path, result) {
+      results[app][suite_path] = result;
+      if (get_keys(results[app]).length === test_paths[app].length) {
+        var date = new Date();
+        var app_result;
+        var failed = passed = total = runtime = 0;
+
+        for(path in results[app]) {
+          result = results[app][path];
           passed += result.passed;
           failed += result.failed;
           total += result.total;
           runtime += result.runtime;
         }
-        app = $("#"+name);
-        app.find("a").removeClass();
-        var date = new Date();
-        if (failed > 0) {
-          app.find("a").addClass("failed");
-          app.find("strong").html("FAILED");
-        } else {
-          app.find("a").addClass("passed");
-          app.find("strong").html("PASSED");
-        }
-        app.find("small:nth-child(2)").html("last ran: " + date.toDateString());
-        app.find("small:nth-child(3)").html("Duration (ms) " + runtime);
-        app.find("small:nth-child(4)").html("passed: " + passed);
-        app.find("small:nth-child(5)").html("failed: " + failed);
-        app.find("small:nth-child(6)").html("total: " + total);
-        store.set(hashes[app[0].id], {
+
+        app_result = {
           'passed': passed,
           'failed': failed,
           'total': total,
           'runtime': runtime,
           'last_run': date.toDateString()
-        });
+        };
+        updateApp($("#"+app), app_result);
+        store.set(suite_hashes[app], app_result);
       }
     }
 
     $(document).ready(function() {
-      apps = $(".app");
       var last_result;
+      var apps = $(".app");
+      apps.find("p > a").removeClass();
       for (var i = 0; i < apps.length; i++) {
-        last_result = store.get(hashes[apps[i].id]);
-        $(apps[i]).find("p > a").removeClass();
-        if (typeof last_result === "undefined") continue;
-        if (last_result.failed === 0) {
-          $(apps[i]).find("a").addClass("passed");
-          $(apps[i]).find("strong").html("PASSED");
-        } else {
-          $(apps[i]).find("a").addClass("failed");
-          $(apps[i]).find("strong").html("FAILED");
-        }
-        $(apps[i]).find("small:nth-child(2)").html("last ran: " + last_result.last_run);
-        $(apps[i]).find("small:nth-child(3)").html("Duration (ms) " + last_result.runtime);
-        $(apps[i]).find("small:nth-child(4)").html("passed: " + last_result.passed);
-        $(apps[i]).find("small:nth-child(5)").html("failed: " + last_result.failed);
-        $(apps[i]).find("small:nth-child(6)").html("total: " + last_result.total);
+        last_result = store.get(suite_hashes[apps[i].id]);
+        updateApp($(apps[i]), last_result);
       }
       $('.app p button').click(function() {
-        var i;
         var path;
-        var result;
-        var id = $(this).parent().parent()[0].id;
-        var app = $(this).parent();
-        var count = 0;
+        var app = $(this).parent().parent()[0].id;
         var iframes = [];
         // Reset from previous runs
-        window.__results = {};
+        initializeResults();
         $('iframe').remove();
-
-        for (i = 0; i < test_paths[id].length; i++) {
-          path = test_paths[id][i];
-          iframes[i] = $('<iframe name="' + id + '" src="/' + path + '" class="hidden"></iframe>');
+        for (var i = 0; i < test_paths[app].length; i++) {
+          path = test_paths[app][i];
+          iframes[i] = $('<iframe name="' + app + '" src="/' + path + '" class="hidden"></iframe>');
           $("body").append(iframes[i]);
         }
-
       });
     });
   </script>
