@@ -22,24 +22,32 @@ tests that are going to be run.
 The following are properties of the manifest file ``suites.json``:
 
 ``name``
-
     A name for the given test suite
 
 ``remote_urls``
-
     URLs to external libraries, e.g. jQuery, Mootools, etc.
 
 ``local_urls``
-
     URLs to the code being tested. URLs are relative the to the STATIC_URL
     setting.
 
 ``tests``
-
     Explicit list of tests to be included under this suite.  Overrides the
     default behavior of including all .js files within the suite's
     directory.  Useful for explicitly listing the order of tests, omitting
     certains tests, or including tests from other nested suites.
+
+``suites``
+    List of children suites
+
+``prefix``
+    The absolute path to the base of the app's javascript tests
+
+``path``
+    Path to the suite from the ``prefix``
+
+``app_label``
+    The name or label of the app
 
 An example ``suites.json`` file might look like this::
 
