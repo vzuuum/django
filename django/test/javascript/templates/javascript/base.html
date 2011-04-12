@@ -3,13 +3,13 @@
 <head>
   <title>QUnit Test Suite</title>
   <link rel="stylesheet" href="/test/qunit/qunit.css" type="text/css" media="screen">
-  <script type="text/javascript" src="/test/qunit/qunit.js"></script>
+  <!--<script type="text/javascript" src="/test/qunit/qunit.js"></script>-->
   <script type="text/javascript" src="/test/store+json2.min.js"></script>
   {% block extra_styles %}
   <style type="text/css">
     body { margin: 0px; }
     .hidden { display: none; }
-    a { text-decoration: none; }
+    a { text-decoration: none; outline: none; }
     a:hover { text-decoration: underline; }
 
     .app { display: inline-block; margin: 2px 2px 5px 2px; padding: 16px 8px; background: #fff; border: 1px solid #ddd; -webkit-border-radius: 6px; -moz-border-radius: 6px; -webkit-box-shadow: 1px 1px 3px #ddd; vertical-align: top; }
@@ -40,6 +40,23 @@
     .apps p a.failed small,
     .apps p a.failed strong { color: #fff; }
 
+    #qunit-testrunner-toolbar a {
+      border-radius: 5px;
+      -moz-border-radius: 5px;
+      -webkit-border-radius: 5px;
+      font: normal 14px "Trebuchet MS", sans-serif;
+      padding: 4px 8px 4px 8px;
+      text-decoration: none;
+      line-height: 30px;
+      border: #ccc solid 1px;
+      color: #333;
+      background-color: #fff;
+    }
+
+    #qunit-testrunner-toolbar a:hover {
+      color: #fff;
+      background-color: #333;
+    }
   </style>
   {% endblock %}
 
@@ -85,11 +102,17 @@
     }
 
     function updateApp(app, result) {
-      if (typeof result === "undefined") {
-        return
-      }
       app.find("a").removeClass();
-      if (result.failed === 0) {
+      if (typeof result === "undefined") {
+        result = {
+          'last_run': 'N/A',
+          'runtime': 'N/A',
+          'passed': 'N/A',
+          'failed': 'N/A',
+          'total': 'N/A'
+        }
+        app.find("strong").html("N/A");
+      } else if (result.failed === 0) {
         app.find("a").addClass("passed");
         app.find("strong").html("PASSED");
       } else {
@@ -152,6 +175,13 @@
         }
       });
     });
+
+    function reset() {
+      store.clear();
+      for(app in test_paths) {
+        updateApp($("#"+app));
+      }
+    }
   </script>
 </head>
 

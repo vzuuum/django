@@ -2,6 +2,7 @@
 {% load url from future %}
 
 {% block extrahead %}
+  <script type="text/javascript" src="/test/qunit/qunit.js"></script>
   <script type="text/javascript">
     QUnit.done = function(results) {
       if (window.top !== window) {
