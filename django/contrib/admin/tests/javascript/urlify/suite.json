@@ -1,0 +1,9 @@
+{
+    "name": "urlify",
+    "local_urls": [
+        "admin/js/urlify.js"
+    ],
+    "tests": [
+        "urlify/urlify.js"
+    ]
+}
