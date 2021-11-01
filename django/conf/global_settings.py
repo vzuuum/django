@@ -9,7 +9,7 @@ gettext_noop = lambda s: s
 # CORE             #
 ####################
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = False
 
 # Whether the framework should propagate raw exceptions rather than catching
